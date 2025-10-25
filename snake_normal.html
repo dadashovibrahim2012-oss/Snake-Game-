@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake Game</title>
+  <style>
+    body { display: flex; justify-content: center; margin-top: 50px; }
+    canvas { background: #222; display: block; }
+    #score { color: white; font-size: 20px; margin-bottom: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+<div id="score">Score: 0</div>
+<canvas id="game" width="400" height="400"></canvas>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+const box = 20;
+let score = 0;
+let snake = [{x: 10*box, y: 10*box}];
+let dir = 'RIGHT';
+let food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+
+document.addEventListener('keydown', e => {
+    if(e.key === 'ArrowUp' && dir !== 'DOWN') dir = 'UP';
+    else if(e.key === 'ArrowDown' && dir !== 'UP') dir = 'DOWN';
+    else if(e.key === 'ArrowLeft' && dir !== 'RIGHT') dir = 'LEFT';
+    else if(e.key === 'ArrowRight' && dir !== 'LEFT') dir = 'RIGHT';
+});
+
+function draw() {
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // yemək
+    ctx.fillStyle = 'red';
+    ctx.fillRect(food.x, food.y, box, box);
+
+    // ilan
+    ctx.fillStyle = 'lime';
+    snake.forEach(s => ctx.fillRect(s.x, s.y, box, box));
+
+    document.getElementById('score').textContent = "Score: " + score;
+}
+
+function update() {
+    let head = {...snake[0]};
+
+    if(dir === 'UP') head.y -= box;
+    else if(dir === 'DOWN') head.y += box;
+    else if(dir === 'LEFT') head.x -= box;
+    else if(dir === 'RIGHT') head.x += box;
+
+    // divarlara dəysə oyun bitir
+    if(head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height){
+        alert("Game Over! Skor: " + score);
+        snake = [{x: 10*box, y: 10*box}];
+        dir = 'RIGHT';
+        score = 0;
+        food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+        return;
+    }
+
+    // öz bədəninə dəysə oyun bitir
+    for(let i=0;i<snake.length;i++){
+        if(head.x === snake[i].x && head.y === snake[i].y){
+            alert("Game Over! Skor: " + score);
+            snake = [{x: 10*box, y: 10*box}];
+            dir = 'RIGHT';
+            score = 0;
+            food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+            return;
+        }
+    }
+
+    // yemək yedikdə böyüt
+    if(head.x === food.x && head.y === food.y){
+        score += 10;
+        food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
+    } else {
+        snake.pop();
+    }
+
+    snake.unshift(head);
+}
+
+function loop(){
+    update();
+    draw();
+}
+
+setInterval(loop, 100); // sürəti dəyişə bilərsən
+
+</script>
+</body>
+</html>
+
